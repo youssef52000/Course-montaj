@@ -418,7 +418,7 @@
     
     @keyframes fade-in {
       from {opacity: 0; transform: translateY(20px);}
-      to {opacity: 1; transform: translateY(0);
+      to {opacity: 1; transform: translateY(0);}
     }
     
     .results-modal {
@@ -560,4 +560,1236 @@
     }
   </style>
 </head>
-<body> [...etc...]
+<body>
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div class="logo floating">🎬</div>
+        <div>
+          <h1>اختبار مصطلحات المونتاج</h1>
+          <div class="subtitle">كل الأسئلة ظاهرة — مرّتب ومناسب للهاتف</div>
+        </div>
+      </div>
+      <div class="controls">
+        <button class="btn" id="btn-home">الصفحة الرئيسية</button>
+        <button class="btn secondary" id="btn-stats">الإحصائيات</button>
+        <button class="btn primary" id="btn-export">تصدير CSV</button>
+      </div>
+    </header>
+    
+    <div class="search-container">
+      <div class="search" role="search">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="opacity:.9">
+          <path stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35"></path>
+          <circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="1.6"></circle>
+        </svg>
+        <input id="search" placeholder="ابحث عن مصطلح بالإنجليزي أو بالعربي" aria-label="search" />
+        <button class="search-btn" id="search-button">بحث</button>
+      </div>
+      <div class="search-results" id="search-results"></div>
+    </div>
+
+    <div class="instructions">
+      اختر نوع الاختبار من الأزرار أدناه
+    </div>
+
+    <div class="filters">
+      <button class="chip active" data-filter="all">الكل</button>
+      <button class="chip" data-filter="general">مصطلحات عامة</button>
+      <button class="chip" data-filter="editing">التعديل</button>
+      <button class="chip" data-filter="effects">المؤثرات</button>
+      <button class="chip" data-filter="audio">الصوت</button>
+      <button class="chip" data-filter="motion">الحركة</button>
+      <button class="chip" data-filter="transitions">الانتقالات</button>
+      <button class="chip" data-filter="color">الألوان</button>
+      <button class="chip" data-filter="ai">الذكاء الاصطناعي</button>
+      <button class="chip" data-filter="tools">الأدوات</button>
+      <button class="chip" data-filter="performance">الأداء</button>
+      <button class="chip" data-filter="fx">المؤثرات الخاصة</button>
+      <button class="chip" data-filter="weather">الطقس</button>
+      <button class="chip" data-filter="environment">البيئة</button>
+      <button class="chip" data-filter="occasions">المناسبات</button>
+      <button class="chip" data-filter="games">الألعاب</button>
+      <button class="chip" data-filter="composition">التكوين</button>
+      <button class="chip" data-filter="camera">الكاميرا</button>
+      <button class="chip" data-filter="lighting">الإضاءة</button>
+      <button class="chip" data-filter="postproduction">ما بعد الإنتاج</button>
+      <button class="chip" data-filter="storytelling">السرد</button>
+    </div>
+
+    <div class="stats-container">
+      <div class="stat-card">
+        <div class="stat-value" id="total-terms">0</div>
+        <div class="stat-label">إجمالي المصطلحات</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="answered-questions">0</div>
+        <div class="stat-label">الأسئلة المجابة</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="correct-answers">0</div>
+        <div class="stat-label">الإجابات الصحيحة</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="accuracy">0%</div>
+        <div class="stat-label">الدقة</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">الاختبار</div>
+        <div class="card-actions">
+          <div style="display:flex;gap:8px;align-items:center">
+            <div class="muted">شريط التقدم</div>
+            <div style="width:120px">
+              <div class="progress">
+                <i id="progbar"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid" id="questions"></div>
+
+      <div class="bottom-actions">
+        <button class="btn" id="btn-shuffle">إعادة خلط</button>
+        <button class="btn primary" id="btn-check">تحقق من الإجابات</button>
+        <button class="btn secondary" id="btn-results">عرض النتائج</button>
+        <button class="btn" id="btn-reset">إعادة ضبط</button>
+      </div>
+
+      <div id="result" style="margin-top:12px;font-weight:800"></div>
+    </div>
+
+    <footer style="margin-top:12px;color:var(--muted);font-size:13px;text-align:center">
+      ملاحظة: يمكنك حفظ الملف محلياً أو استضافة على السيرفر. البيانات تحفظ تلقائيًا في المتصفح.
+    </footer>
+  </div>
+  
+  <button class="fab pulse" id="go-top">الذهاب لأعلى</button>
+  
+  <div class="modal" id="stats-modal">
+    <div class="modal-content">
+      <button class="close-modal" id="close-stats">&times;</button>
+      <h2>إحصائيات التقدم</h2>
+      <div id="detailed-stats"></div>
+    </div>
+  </div>
+  
+  <div class="modal" id="results-modal">
+    <div class="modal-content results-modal">
+      <button class="close-modal" id="close-results">&times;</button>
+      <h2>نتائج الاختبار</h2>
+      <div class="score-summary">
+        <div class="score-number" id="final-score">0</div>
+        <div>النتيجة النهائية</div>
+        <div class="timer" id="test-timer">الوقت المستغرق: 00:00</div>
+      </div>
+      <div id="results-list"></div>
+      <div class="achievement" id="achievement-section" style="display:none;">
+        <div class="trophy">🏆</div>
+        <div class="achievement-title" id="achievement-title"></div>
+        <div class="achievement-desc" id="achievement-desc"></div>
+        <div class="stars" id="achievement-stars"></div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="modal" id="search-modal">
+    <div class="search-modal">
+      <button class="close-modal" id="close-search-modal">&times;</button>
+      <h2>نتائج البحث</h2>
+      <div id="search-results-modal"></div>
+    </div>
+  </div>
+  
+  <div class="notification" id="notification">تم الحفظ!</div>
+
+  <script>
+    // المصطلحات الأساسية المهمة لكل فئة
+    const TERMS = [
+      // General montage terms (20 terms)
+      {eng:'Clip', ar:'مقطع', desc:'جزء من الفيديو يمكن قصه أو تعديله.', cat:'general'},
+      {eng:'Reverse', ar:'عكس الفيديو', desc:'تشغيل المقطع بشكل عكسي.', cat:'general'},
+      {eng:'Speed', ar:'السرعة', desc:'زيادة أو تقليل سرعة المقطع.', cat:'general'},
+      {eng:'Slow Motion', ar:'الحركة البطيئة', desc:'إبطاء الفيديو لتوضيح التفاصيل.', cat:'general'},
+      {eng:'Fast Motion', ar:'الحركة السريعة', desc:'تسريع الفيديو لتسريع الأحداث.', cat:'general'},
+      {eng:'Transition', ar:'انتقال', desc:'تأثير يربط بين مقطعين بسلاسة.', cat:'general'},
+      {eng:'Fade In', ar:'ظهور تدريجي', desc:'ظهور المقطع تدريجيًا من الأسود.', cat:'general'},
+      {eng:'Fade Out', ar:'اختفاء تدريجي', desc:'اختفاء المقطع تدريجيًا إلى الأسود.', cat:'general'},
+      {eng:'Split', ar:'تقسيم', desc:'فصل المقطع إلى جزئين لتعديله.', cat:'general'},
+      {eng:'Delete', ar:'حذف', desc:'إزالة المقطع من المشروع.', cat:'general'},
+      {eng:'Copy', ar:'نسخ', desc:'عمل نسخة من المقطع.', cat:'general'},
+      {eng:'Text', ar:'نص', desc:'إضافة نصوص على الفيديو.', cat:'general'},
+      {eng:'Sticker', ar:'ملصق', desc:'إضافة ملصقات متحركة أو ثابتة على الفيديو.', cat:'general'},
+      {eng:'Filter', ar:'فلتر', desc:'تعديل ألوان الفيديو لإضفاء طابع معين.', cat:'general'},
+      {eng:'Effect', ar:'تأثير', desc:'إضافة مؤثرات بصرية على الفيديو.', cat:'general'},
+      {eng:'Overlay', ar:'تراكب', desc:'وضع مقطع أو صورة فوق الفيديو الأساسي.', cat:'general'},
+      {eng:'Mask', ar:'ماسك', desc:'إظهار جزء معين من المقطع وإخفاء الباقي.', cat:'general'},
+      {eng:'Keyframe', ar:'إطار رئيسي', desc:'تحديد نقاط بداية ونهاية للحركة أو التأثير.', cat:'general'},
+      {eng:'Animation', ar:'أنيميشن', desc:'تحريك النصوص أو العناصر داخل الفيديو.', cat:'general'},
+      {eng:'AI Cut', ar:'قص بالذكاء الاصطناعي', desc:'قص تلقائي للمقاطع باستخدام الذكاء الاصطناعي.', cat:'general'},
+
+      // Editing (20 terms)
+      {eng:'Cut', ar:'قص', desc:'فصل المقطع في نقطة معينة.', cat:'editing'},
+      {eng:'Trim', ar:'تقليم', desc:'حذف الأجزاء غير المرغوب فيها من المقطع.', cat:'editing'},
+      {eng:'Ripple Edit', ar:'تعديل متموج', desc:'تعديل يعيد ترتيب المقاطع تلقائيًا.', cat:'editing'},
+      {eng:'Rolling Edit', ar:'تعديل دحرجي', desc:'تعديل يبقي المدة الإجمالية ثابتة.', cat:'editing'},
+      {eng:'Slip Edit', ar:'تعديل منزلق', desc:'تحريك المحتوى دون تغيير المدة.', cat:'editing'},
+      {eng:'Slide Edit', ar:'تعديل منزلق', desc:'تحريك المقطع دون تغيير المدة.', cat:'editing'},
+      {eng:'Timeline', ar:'الجدول الزمني', desc:'المساحة التي يتم فيها ترتيب المقاطع.', cat:'editing'},
+      {eng:'Track', ar:'مسار', desc:'خط أفقي في الجدول الزمني.', cat:'editing'},
+      {eng:'Sync', ar:'مزامنة', desc:'مطابقة الصوت مع الفيديو.', cat:'editing'},
+      {eng:'Render', ar:'تقديم', desc:'تحويل المقطع إلى صيغة نهائية.', cat:'editing'},
+      {eng:'Undo', ar:'تراجع', desc:'إلغاء آخر إجراء.', cat:'editing'},
+      {eng:'Redo', ar:'إعادة', desc:'إعادة آخر إجراء تم التراجع عنه.', cat:'editing'},
+      {eng:'Keyframe', ar:'إطار رئيسي', desc:'نقطة تحكم في الحركة أو التأثير.', cat:'editing'},
+      {eng:'Time Remapping', ar:'إعادة تعيين الوقت', desc:'تغيير سرعة المقطع بمرور الوقت.', cat:'editing'},
+      {eng:'Compositing', ar:'التركيب', desc:'دمج عناصر متعددة في صورة واحدة.', cat:'editing'},
+      {eng:'Layer', ar:'طبقة', desc:'مستوى في التركيب.', cat:'editing'},
+      {eng:'Opacity', ar:'التعتيم', desc:'مدى وضوح العنصر.', cat:'editing'},
+      {eng:'Transform', ar:'تحويل', desc:'تغيير حجم أو دوران العنصر.', cat:'editing'},
+      {eng:'Stabilization', ar:'تثبيت', desc:'تقليل الاهتزاز في الفيديو.', cat:'editing'},
+      {eng:'Proxy', ar:'وسيط', desc:'نسخة مصغرة من المقطع الأصلي.', cat:'editing'},
+
+      // Effects (20 terms)
+      {eng:'Blur', ar:'ضبابية', desc:'جعل الصورة غير واضحة.', cat:'effects'},
+      {eng:'Sharpen', ar:'تحديث', desc:'تحسين وضوح الصورة.', cat:'effects'},
+      {eng:'Distort', ar:'تشويه', desc:'تغيير شكل الصورة.', cat:'effects'},
+      {eng:'Warp', ar:'انحناء', desc:'إضافة انحناءات إلى الصورة.', cat:'effects'},
+      {eng:'Chroma Key', ar:'مفتاح اللون', desc:'إزالة خلفية ملونة.', cat:'effects'},
+      {eng:'Green Screen', ar:'شاشة خضراء', desc:'تقنية لاستبدال الخلفية.', cat:'effects'},
+      {eng:'Morphing', ar:'تحول', desc:'تحويل شكل إلى شكل آخر.', cat:'effects'},
+      {eng:'Glow', ar:'توهج', desc:'إضافة توهج حول العناصر.', cat:'effects'},
+      {eng:'Bevel', ar:'حافة مائلة', desc:'إضافة حافة مائلة.', cat:'effects'},
+      {eng:'Drop Shadow', ar:'ظل مسقط', desc:'إضافة ظل خلف العنصر.', cat:'effects'},
+      {eng:'Gaussian Blur', ar:'ضبابية غاوسية', desc:'ضبابية ناعمة.', cat:'effects'},
+      {eng:'Tilt Shift', ar:'تحريك الميل', desc:'تأثير صغير يحاكي النماذج.', cat:'effects'},
+      {eng:'Film Grain', ar:'حبيبات الفيلم', desc:'إضافة حبيبات فوتوغرافية.', cat:'effects'},
+      {eng:'Vignette', ar:'ظل محيطي', desc:'تظليل الزوايا.', cat:'effects'},
+      {eng:'Lens Flare', ar:'انعكاس العدسة', desc:'انعكاسات ضوئية على العدسة.', cat:'effects'},
+      {eng:'Holographic Effect', ar:'تأثير هولوغرافي', desc:'تأثير بصري ثلاثي الأبعاد.', cat:'effects'},
+      {eng:'Color Bleed', ar:'تمدد الألوان', desc:'تمدد الألوان إلى المناطق المجاورة.', cat:'effects'},
+      {eng:'Digital Glitch', ar:'خلل رقمي', desc:'تأثير خلل تقني.', cat:'effects'},
+      {eng:'Luma Key', ar:'مفتاح السطوع', desc:'مفتاح بناءً على السطوع.', cat:'effects'},
+      {eng:'Particle Effect', ar:'تأثير جسيمات', desc:'تأثيرات مكونة من جسيمات.', cat:'effects'},
+
+      // Audio (20 terms)
+      {eng:'Audio Sync', ar:'مزامنة الصوت', desc:'مطابقة الصوت مع الفيديو.', cat:'audio'},
+      {eng:'Audio Ducking', ar:'خفض الصوت', desc:'خفض مستوى الصوت عند ظهور صوت آخر.', cat:'audio'},
+      {eng:'Audio Fade', ar:'تلاشي الصوت', desc:'ظهور أو اختفاء الصوت تدريجيًا.', cat:'audio'},
+      {eng:'Audio Pan', ar:'تحريك الصوت', desc:'تحريك الصوت بين القنوات.', cat:'audio'},
+      {eng:'Audio Track', ar:'مسار الصوت', desc:'مسار خاص للصوت.', cat:'audio'},
+      {eng:'Audio Mixer', ar:'مختلط الصوت', desc:'أداة لضبط مستويات الصوت.', cat:'audio'},
+      {eng:'Audio Compression', ar:'ضغط الصوت', desc:'تقليل مدى الصوت.', cat:'audio'},
+      {eng:'Audio Equalizer', ar:'معادل الصوت', desc:'أداة لتعديل ترددات الصوت.', cat:'audio'},
+      {eng:'Audio Noise Reduction', ar:'تقليل ضوضاء الصوت', desc:'تقليل الضوضاء من الصوت.', cat:'audio'},
+      {eng:'Audio Reverb', ar:'صدى الصوت', desc:'إضافة تأثير الصدى للصوت.', cat:'audio'},
+      {eng:'Audio Delay', ar:'تأخير الصوت', desc:'تأخير وصول الصوت.', cat:'audio'},
+      {eng:'Audio Normalize', ar:'ترحيل الصوت', desc:'تحقيق توازن في مستوى الصوت.', cat:'audio'},
+      {eng:'Audio Limiter', ar:'محدد الصوت', desc:'يمنع الصوت من تجاوز مستوى معين.', cat:'audio'},
+      {eng:'Audio Compressor', ar:'ضاغط الصوت', desc:'يقلل الفرق بين الأصوات العالية والمنخفضة.', cat:'audio'},
+      {eng:'Frequency', ar:'التردد', desc:'عدد الاهتزازات في الثانية.', cat:'audio'},
+      {eng:'Amplitude', ar:'السعة', desc:'شدة الصوت.', cat:'audio'},
+      {eng:'Decibel', ar:'ديسيبل', desc:'وحدة قياس شدة الصوت.', cat:'audio'},
+      {eng:'Dynamic Range', ar:'المدى الديناميكي', desc:'الفرق بين الأصوات العالية والمنخفضة.', cat:'audio'},
+      {eng:'Gain', ar:'الربح', desc:'زيادة شدة الصوت.', cat:'audio'},
+      {eng:'Attenuation', ar:'الانحسار', desc:'تقليل شدة الصوت.', cat:'audio'},
+
+      // Motion (20 terms)
+      {eng:'Motion Blur', ar:'ضبابية الحركة', desc:'ضبابية تظهر بسبب الحركة السريعة.', cat:'motion'},
+      {eng:'Motion Graphics', ar:'رسومات الحركة', desc:'رسومات متحركة تستخدم في المونتاج.', cat:'motion'},
+      {eng:'Motion Path', ar:'مسار الحركة', desc:'المسار الذي يتحرك فيه العنصر.', cat:'motion'},
+      {eng:'Motion Tracking', ar:'تتبع الحركة', desc:'تتبع حركة عنصر معين.', cat:'motion'},
+      {eng:'Rotation', ar:'دوران', desc:'تحريك العنصر حول محور.', cat:'motion'},
+      {eng:'Scale', ar:'تحجيم', desc:'تغيير حجم العنصر.', cat:'motion'},
+      {eng:'Position', ar:'موضع', desc:'مكان العنصر على الشاشة.', cat:'motion'},
+      {eng:'Anchor Point', ar:'نقطة التثبيت', desc:'نقطة تدور حولها الحركة.', cat:'motion'},
+      {eng:'Pinning', ar:'تثبيت', desc:'تثبيت جزء من العنصر.', cat:'motion'},
+      {eng:'Stabilization', ar:'تثبيت', desc:'تقليل الاهتزاز في الفيديو.', cat:'motion'},
+      {eng:'Parallax', ar:'الانزياح المتوازي', desc:'تأثير يظهر الحركة بسرعات مختلفة.', cat:'motion'},
+      {eng:'Kinetic Typography', ar:'طباعة حركية', desc:'نصوص متحركة.', cat:'motion'},
+      {eng:'Easing', ar:'التسهيل', desc:'طريقة تغير الحركة.', cat:'motion'},
+      {eng:'Bounce', ar:'ارتداد', desc:'حركة ترتد عند الانتهاء.', cat:'motion'},
+      {eng:'Elastic', ar:'مطاطية', desc:'حركة مطاطية.', cat:'motion'},
+      {eng:'Morph', ar:'تحول', desc:'تحول من شكل إلى آخر.', cat:'motion'},
+      {eng:'Wiggle', ar:'اهتزاز', desc:'اهتزاز خفيف.', cat:'motion'},
+      {eng:'Shake', ar:'اهتزاز قوي', desc:'اهتزاز قوي.', cat:'motion'},
+      {eng:'Dissolve', ar:'ذوبان', desc:'انتقال تدريجي بين مقطعين.', cat:'motion'},
+      {eng:'Wipe', ar:'مسح', desc:'انتقال يمسح المقطع القديم.', cat:'motion'},
+
+      // Transitions (20 terms)
+      {eng:'Slide', ar:'انزلاق', desc:'مقطع ينزلق ليحل محل الآخر.', cat:'transitions'},
+      {eng:'Push', ar:'دفع', desc:'مقطع يدفع المقطع الآخر.', cat:'transitions'},
+      {eng:'Cross Dissolve', ar:'ذوبان متقاطع', desc:'مقطع يظهر مع اختفاء الآخر.', cat:'transitions'},
+      {eng:'Zoom', ar:'تكبير', desc:'تكبير المقطع الجديد.', cat:'transitions'},
+      {eng:'Flip', ar:'قلب', desc:'قلب المقطع حول محور.', cat:'transitions'},
+      {eng:'Cube', ar:'مكعب', desc:'انتقال على شكل مكعب.', cat:'transitions'},
+      {eng:'Circle', ar:'دائرة', desc:'انتقال على شكل دائري.', cat:'transitions'},
+      {eng:'Star', ar:'نجمة', desc:'انتقال على شكل نجمة.', cat:'transitions'},
+      {eng:'Heart', ar:'قلب', desc:'انتقال على شكل قلب.', cat:'transitions'},
+      {eng:'Diamond', ar:'ماسة', desc:'انتقال على شكل ماسة.', cat:'transitions'},
+      {eng:'Iris', ar:'قزحية', desc:'انتقال يشبه فتحة الكاميرا.', cat:'transitions'},
+      {eng:'Venetian Blinds', ar:'ستائر فينيسية', desc:'انتقال مثل الستائر.', cat:'transitions'},
+      {eng:'Checkerboard', ar:'رقم الشطرنج', desc:'انتقال مثل لوحة الشطرنج.', cat:'transitions'},
+      {eng:'Page Peel', ar:'تقشير الصفحة', desc:'انتقال مثل تقشير الورقة.', cat:'transitions'},
+      {eng:'Clock Wipe', ar:'مسح على شكل ساعة', desc:'انتقال على شكل عقارب الساعة.', cat:'transitions'},
+      {eng:'Bow Tie', ar:'ربطة الفراشة', desc:'انتقال على شكل ربطة فراشة.', cat:'transitions'},
+      {eng:'Windshield Wiper', ar:'مسح الواجهة', desc:'انتقال مثل مساحات الزجاج.', cat:'transitions'},
+      {eng:'Barn Door', ar:'باب الحظيرة', desc:'انتقال يشبه فتح الباب.', cat:'transitions'},
+      {eng:'Fade to Black', ar:'تلاشي إلى الأسود', desc:'اختفاء إلى اللون الأسود.', cat:'transitions'},
+      {eng:'Razor Tool', ar:'أداة الشفرة', desc:'أداة لقص المقاطع.', cat:'transitions'},
+
+      // Color (20 terms)
+      {eng:'Color Correction', ar:'تصحيح اللون', desc:'تصحيح الألوان في الفيديو.', cat:'color'},
+      {eng:'Color Grading', ar:'تدرج الألوان', desc:'إضافة طابع فني على الألوان.', cat:'color'},
+      {eng:'Saturation', ar:'تشبع الألوان', desc:'شدة الألوان.', cat:'color'},
+      {eng:'Hue', ar:'درجة اللون', desc:'نطاق اللون.', cat:'color'},
+      {eng:'Brightness', ar:'السطوع', desc:'شدة الضوء في الصورة.', cat:'color'},
+      {eng:'Contrast', ar:'التباين', desc:'الفرق بين الألوان الداكنة والفاتحة.', cat:'color'},
+      {eng:'Gamma', ar:'غاما', desc:'تعديل السطوع في الألوان المتوسطة.', cat:'color'},
+      {eng:'Color Balance', ar:'توازن الألوان', desc:'توازن الألوان الأساسية.', cat:'color'},
+      {eng:'White Balance', ar:'توازن الأبيض', desc:'تصحيح لون الأبيض.', cat:'color'},
+      {eng:'Color Temperature', ar:'درجة حرارة اللون', desc:'نطاق اللون من دافئ إلى بارد.', cat:'color'},
+      {eng:'LUT', ar:'جدول التحويل اللوني', desc:'ملف يطبق تدرج ألوان محدد.', cat:'color'},
+      {eng:'RGB', ar:'نظام الألوان الثلاثية', desc:'نظام الأحمر والأخضر والأزرق.', cat:'color'},
+      {eng:'CMYK', ar:'نظام الألوان الأربعة', desc:'نظام الألوان الأربعة.', cat:'color'},
+      {eng:'HSV', ar:'HSV', desc:'نظام الألوان HSV.', cat:'color'},
+      {eng:'Color Picker', ar:'محدد الألوان', desc:'أداة اختيار الألوان.', cat:'color'},
+      {eng:'Color Wheel', ar:'عجلة الألوان', desc:'تمثيل دائري للألوان.', cat:'color'},
+      {eng:'Color Harmony', ar:'تناغم الألوان', desc:'مزيج متناسق من الألوان.', cat:'color'},
+      {eng:'Color Scheme', ar:'مخطط الألوان', desc:'مجموعة من الألوان المتناسقة.', cat:'color'},
+      {eng:'Color Cast', ar:'طابع اللون', desc:'Dominance of a color in the image.', cat:'color'},
+      {eng:'Color Separation', ar:'فصل الألوان', desc:'فصل الألوان إلى مكوناتها.', cat:'color'},
+
+      // AI (20 terms)
+      {eng:'AI Remove Background', ar:'إزالة الخلفية بالذكاء الاصطناعي', desc:'إزالة خلفية الفيديو تلقائيًا.', cat:'ai'},
+      {eng:'AI Upscaling', ar:'تكبير بالذكاء الاصطناعي', desc:'تكبير جودة الفيديو باستخدام الذكاء الاصطناعي.', cat:'ai'},
+      {eng:'AI Noise Reduction', ar:'تقليل ضوضاء بالذكاء الاصطناعي', desc:'تقليل الضوضاء باستخدام الذكاء الاصطناعي.', cat:'ai'},
+      {eng:'AI Auto Reframe', ar:'إعادة تأطير تلقائي', desc:'إعادة تأطير الفيديو تلقائيًا.', cat:'ai'},
+      {eng:'AI Auto Color', ar:'تصحيح لون تلقائي', desc:'تصحيح الألوان تلقائيًا.', cat:'ai'},
+      {eng:'AI Object Tracking', ar:'تتبع كائن بالذكاء الاصطناعي', desc:'تتبع كائن باستخدام الذكاء الاصطناعي.', cat:'ai'},
+      {eng:'AI Scene Detection', ar:'كشف المشهد بالذكاء الاصطناعي', desc:'كشف المشاهد المختلفة باستخدام الذكاء الاصطناعي.', cat:'ai'},
+      {eng:'AI Speech to Text', ar:'تحويل كلام إلى نص', desc:'تحويل الصوت إلى نص تلقائيًا.', cat:'ai'},
+      {eng:'AI Text to Speech', ar:'تحويل نص إلى كلام', desc:'تحويل النص إلى صوت تلقائيًا.', cat:'ai'},
+      {eng:'AI Style Transfer', ar:'نقل الطراز بالذكاء الاصطناعي', desc:'نقل نمط فني من صورة إلى أخرى.', cat:'ai'},
+      {eng:'Beep', ar:'بيب', desc:'صوت تنبيه إلكتروني.', cat:'ai'},
+      {eng:'Bleep', ar:'بليب', desc:'صوت محجوب أو محذوف.', cat:'ai'},
+      {eng:'Glitch', ar:'خلل', desc:'صوت خلل أو عطل تقني.', cat:'ai'},
+      {eng:'Robot Voice', ar:'صوت روبوت', desc:'صوت محاكي للروبوتات.', cat:'ai'},
+      {eng:'Computer Startup', ar:'تشغيل الكمبيوتر', desc:'صوت بدء تشغيل جهاز الكمبيوتر.', cat:'ai'},
+      {eng:'Data Transfer', ar:'نقل بيانات', desc:'صوت نقل البيانات بين الأجهزة.', cat:'ai'},
+      {eng:'Error', ar:'خطأ', desc:'صوت تنبيه بوجود خطأ.', cat:'ai'},
+      {eng:'Notification', ar:'إشعار', desc:'صوت إشعار جديد.', cat:'ai'},
+      {eng:'Message Received', ar:'رسالة واردة', desc:'صوت استلام رسالة جديدة.', cat:'ai'},
+      {eng:'System Alert', ar:'تنبيه النظام', desc:'صوت تنبيه من النظام.', cat:'ai'},
+
+      // Tools (20 terms)
+      {eng:'Razor Tool', ar:'أداة الشفرة', desc:'أداة لقص المقاطع.', cat:'tools'},
+      {eng:'Selection Tool', ar:'أداة التحديد', desc:'أداة لتحديد العناصر.', cat:'tools'},
+      {eng:'Hand Tool', ar:'أداة اليد', desc:'أداة للتنقل في المحتوى.', cat:'tools'},
+      {eng:'Zoom Tool', ar:'أداة التكبير', desc:'أداة لتكبير المحتوى.', cat:'tools'},
+      {eng:'Pen Tool', ar:'أداة القلم', desc:'أداة لرسم المسارات.', cat:'tools'},
+      {eng:'Crop Tool', ar:'أداة القص', desc:'أداة لقص الصورة.', cat:'tools'},
+      {eng:'Eyedropper Tool', ar:'أداة الماصة', desc:'أداة لاختيار الألوان.', cat:'tools'},
+      {eng:'Brush Tool', ar:'أداة الفرشاة', desc:'أداة للرسم.', cat:'tools'},
+      {eng:'Clone Tool', ar:'أداة الاستنساخ', desc:'أداة لنسخ الأجزاء.', cat:'tools'},
+      {eng:'Heal Tool', ar:'أداة الإصلاح', desc:'أداة لإزالة العيوب.', cat:'tools'},
+      {eng:'Gradient Tool', ar:'أداة التدرج', desc:'أداة لإنشاء تدرجات الألوان.', cat:'tools'},
+      {eng:'Shape Tool', ar:'أداة الأشكال', desc:'أداة لرسم الأشكال.', cat:'tools'},
+      {eng:'Type Tool', ar:'أداة الكتابة', desc:'أداة لإضافة النصوص.', cat:'tools'},
+      {eng:'Rectangle Tool', ar:'أداة المستطيل', desc:'أداة لرسم المستطيلات.', cat:'tools'},
+      {eng:'Ellipse Tool', ar:'أداة القطع الناقص', desc:'أداة لرسم الدوائر.', cat:'tools'},
+      {eng:'Line Tool', ar:'أداة الخط', desc:'أداة لرسم الخطوط.', cat:'tools'},
+      {eng:'Polygon Tool', ar:'أداة المضلع', desc:'أداة لرسم المضلعات.', cat:'tools'},
+      {eng:'Freeform Pen Tool', ar:'أداة القلم الحر', desc:'أداة لرسم الأشكال الحرة.', cat:'tools'},
+      {eng:'Patch Tool', ar:'أداة التصحيح', desc:'أداة لتصحيح الأجزاء.', cat:'tools'},
+      {eng:'Clone Stamp', ar:'ختم الاستنساخ', desc:'أداة لنسخ جزء من الصورة.', cat:'tools'},
+
+      // Performance (20 terms)
+      {eng:'Applause', ar:'تصفيق', desc:'صوت تصفيق الجمهور تعبيرًا عن الإعجاب.', cat:'performance'},
+      {eng:'Cheering', ar:'هتافات', desc:'أصوات تشجيع وحماس من الجمهور.', cat:'performance'},
+      {eng:'Laughter', ar:'ضحك', desc:'صوت ضحك طبيعي أو اصطناعي.', cat:'performance'},
+      {eng:'Victory', ar:'فوز', desc:'صوت احتفال بالنجاح أو الفوز.', cat:'performance'},
+      {eng:'Whistling', ar:'صفير', desc:'صوت صفير خفيف أو متواصل.', cat:'performance'},
+      {eng:'Singing', ar:'غناء', desc:'صوت شخص يغني أو يردد لحنًا.', cat:'performance'},
+      {eng:'Yelling', ar:'صراخ', desc:'صوت صراخ مرتفع أو مناداة.', cat:'performance'},
+      {eng:'Applause and cheering', ar:'تصفيق وهتافات', desc:'مزيج من تصفيق الجمهور وهتافاته.', cat:'performance'},
+      {eng:'Cheering and applause', ar:'هتافات وتصفيق', desc:'مزيج من هتاف وتصفيق.', cat:'performance'},
+      {eng:'Victory and cheering', ar:'فوز وهتافات', desc:'صوت احتفال بالفوز مع هتافات الجمهور.', cat:'performance'},
+      {eng:'Chorus', ar:'الكورس', desc:'صوت جماعي من عدة مغنيين.', cat:'performance'},
+      {eng:'Solo', ar:'الفردي', desc:'أداء فردي.', cat:'performance'},
+      {eng:'Ensemble', ar:'الفرقة', desc:'أداء جماعي.', cat:'performance'},
+      {eng:'Orchestra', ar:'الchestra', desc:'فرقة موسيقية.', cat:'performance'},
+      {eng:'Band', ar:'الفرقة', desc:'مجموعة من العازفين.', cat:'performance'},
+      {eng:'Conductor', ar:'القائد', desc:'قائد الفرقة.', cat:'performance'},
+      {eng:'Audience', ar:'الجمهور', desc:'الناس الذين يشاهدون العرض.', cat:'performance'},
+      {eng:'Stage', ar:'المنصة', desc:'مكان العرض.', cat:'performance'},
+      {eng:'Spotlight', ar:'الضوء المركزي', desc:'ضوء مركزي على الممثل.', cat:'performance'},
+      {eng:'Curtain', ar:'الستارة', desc:'الستارة التي تغطي المنصة.', cat:'performance'},
+
+      // Motion (20 terms)
+      {eng:'Whoosh', ar:'فحيح', desc:'صوت حركة سريعة للهواء أو جسم متحرك.', cat:'motion'},
+      {eng:'Swoosh', ar:'سووش', desc:'صوت حركة سريعة أو انتقال مفاجئ.', cat:'motion'},
+      {eng:'Swipe', ar:'مسح', desc:'صوت حركة سريعة لتمرير أو مسح شيء.', cat:'motion'},
+      {eng:'Slide', ar:'انزلاق', desc:'صوت انزلاق جسم على سطح أملس.', cat:'motion'},
+      {eng:'Zoom (sound)', ar:'تكبير', desc:'صوت تكبير الصورة أو الكاميرا.', cat:'motion'},
+      {eng:'Pop', ar:'فرقعة', desc:'صوت انفجار صغير أو فرقعة.', cat:'motion'},
+      {eng:'Boing', ar:'بويينغ', desc:'صوت ارتداد أو قفزة مرنة.', cat:'motion'},
+      {eng:'Snap', ar:'فرقعة', desc:'صوت فرقعة مفاجئة أو انقطاع.', cat:'motion'},
+      {eng:'Click', ar:'نقرة', desc:'صوت نقرة زر أو تفاعل مع جهاز.', cat:'motion'},
+      {eng:'Tick', ar:'تيك', desc:'صوت دقة ساعة أو عداد.', cat:'motion'},
+      {eng:'Squeak', ar:'صوت صرير', desc:'صوت صغير مزعج.', cat:'motion'},
+      {eng:'Crunch', ar:'صوت طحن', desc:'صوت طحن أو كسر.', cat:'motion'},
+      {eng:'Crack', ar:'صوت شق', desc:'صوت شق أو تصدع.', cat:'motion'},
+      {eng:'Bang', ar:'صوت انفجار', desc:'صوت انفجار قوي.', cat:'motion'},
+      {eng:'Crash', ar:'صوت اصطدام', desc:'صوت اصطدام قوي.', cat:'motion'},
+      {eng:'Smash', ar:'صوت تحطيم', desc:'صوت تحطيم شيء.', cat:'motion'},
+      {eng:'Shatter', ar:'صوت تحطيم', desc:'صوت تحطيم الزجاج.', cat:'motion'},
+      {eng:'Rumble', ar:'صوت هدير', desc:'صوت هدير أو اهتزاز.', cat:'motion'},
+      {eng:'Roar', ar:'صوت صرخة', desc:'صوت صرخة قوية.', cat:'motion'},
+      {eng:'Howl', ar:'صوت عواء', desc:'صوت عواء الحيوان.', cat:'motion'},
+
+      // Special effects (20 terms)
+      {eng:'Explosion', ar:'انفجار', desc:'صوت انفجار قوي أو تأثير مدمر.', cat:'fx'},
+      {eng:'Gunshot', ar:'طلقة نارية', desc:'صوت إطلاق نار من سلاح ناري.', cat:'fx'},
+      {eng:'Thunder', ar:'رعد', desc:'صوت الرعد في السماء أثناء العاصفة.', cat:'fx'},
+      {eng:'Lightning', ar:'برق', desc:'صوت ومضة ضوء مفاجئة.', cat:'fx'},
+      {eng:'Fire', ar:'نار', desc:'صوت اشتعال أو احتراق شيء.', cat:'fx'},
+      {eng:'Water Splash', ar:'رش ماء', desc:'صوت رش أو تناثر الماء.', cat:'fx'},
+      {eng:'Glass Break', ar:'تحطم زجاج', desc:'صوت تحطم أو كسر الزجاج.', cat:'fx'},
+      {eng:'Door Slam', ar:'غلق باب مفاجئ', desc:'صوت غلق باب بقوة.', cat:'fx'},
+      {eng:'Footsteps', ar:'خطوات', desc:'صوت خطوات شخص يمشي.', cat:'fx'},
+      {eng:'Creak', ar:'صرير', desc:'صوت احتكاك أو صرير خشب أو معدن.', cat:'fx'},
+      {eng:'Squeal', ar:'صوت صرخة حادة', desc:'صوت صرخة حادة.', cat:'fx'},
+      {eng:'Whisper', ar:'همس', desc:'صوت ناعم خافت.', cat:'fx'},
+      {eng:'Shout', ar:'صراخ', desc:'صوت عالي.', cat:'fx'},
+      {eng:'Scream', ar:'صيحة', desc:'صوت صيحة مخيفة.', cat:'fx'},
+      {eng:'Cry', ar:'بكاء', desc:'صوت بكاء.', cat:'fx'},
+      {eng:'Sob', ar:'انتحاب', desc:'صوت انتحاب.', cat:'fx'},
+      {eng:'Sigh', ar:'تنهد', desc:'صوت تنهد.', cat:'fx'},
+      {eng:'Gasp', ar:'اهتزاز', desc:'صوت اهتزاز مفاجئ.', cat:'fx'},
+      {eng:'Pant', ar:'تنفس', desc:'صوت تنفس مكثف.', cat:'fx'},
+      {eng:'Cough', ar:'سعال', desc:'صوت سعال.', cat:'fx'},
+
+      // Weather (20 terms)
+      {eng:'Rain', ar:'مطر', desc:'صوت قطرات المطر المتساقطة.', cat:'weather'},
+      {eng:'Wind', ar:'رياح', desc:'صوت الرياح العاتية أو الخفيفة.', cat:'weather'},
+      {eng:'Snow', ar:'ثلج', desc:'صوت تساقط الثلج أو احتكاكه.', cat:'weather'},
+      {eng:'Storm', ar:'عاصفة', desc:'صوت عاصفة رعدية أو هوائية.', cat:'weather'},
+      {eng:'Hail', ar:'برد', desc:'صوت تساقط حبات البرد.', cat:'weather'},
+      {eng:'Tornado', ar:'إعصار', desc:'صوت إعصار هوائي قوي.', cat:'weather'},
+      {eng:'Earthquake', ar:'زلزال', desc:'صوت اهتزاز الأرض أثناء الزلزال.', cat:'weather'},
+      {eng:'Flood', ar:'فيضان', desc:'صوت تدفق المياه أثناء الفيضان.', cat:'weather'},
+      {eng:'Fog', ar:'ضباب', desc:'صوت الضباب أو الغموض.', cat:'weather'},
+      {eng:'Hurricane', ar:'إعصار', desc:'صوت إعصار بحري مدمر.', cat:'weather'},
+      {eng:'Drizzle', ar:'رذاذ', desc:'صوت مطر خفيف.', cat:'weather'},
+      {eng:'Downpour', ar:'هطول كثيف', desc:'صوت مطر كثيف.', cat:'weather'},
+      {eng:'Hailstorm', ar:'عاصفة برد', desc:'صوت عاصفة برد.', cat:'weather'},
+      {eng:'Sleet', ar:'مطر مجمد', desc:'صوت مطر مجمد.', cat:'weather'},
+      {eng:'Blizzard', ar:'عاصفة ثلجية', desc:'صوت عاصفة ثلجية.', cat:'weather'},
+      {eng:'Whiteout', ar:'ضباب ثلجي', desc:'صوت ضباب ثلجي.', cat:'weather'},
+      {eng:'Gale', ar:'عاصفة قوية', desc:'صوت عاصفة قوية.', cat:'weather'},
+      {eng:'Breeze', ar:'نسمة', desc:'صوت نسمة خفيفة.', cat:'weather'},
+      {eng:'Gust', ar:'هبّة', desc:'صوت هبّة رياح.', cat:'weather'},
+      {eng:'Squall', ar:'عاصفة مفاجئة', desc:'صوت عاصفة مفاجئة.', cat:'weather'},
+
+      // Environment (20 terms)
+      {eng:'Birds Chirping', ar:'تغريد الطيور', desc:'صوت تغريد الطيور في الصباح.', cat:'environment'},
+      {eng:'City Ambience', ar:'أجواء المدينة', desc:'أصوات المدينة مثل السيارات والمارة.', cat:'environment'},
+      {eng:'Forest Ambience', ar:'أجواء الغابة', desc:'أصوات الطبيعة في الغابة من حيوانات ونباتات.', cat:'environment'},
+      {eng:'Ocean Waves', ar:'أمواج المحيط', desc:'صوت تلاطم الأمواج على الشاطئ.', cat:'environment'},
+      {eng:'River Flow', ar:'تدفق النهر', desc:'صوت جريان المياه في النهر.', cat:'environment'},
+      {eng:'Jungle Sounds', ar:'أصوات الغابة', desc:'مزيج من أصوات الحيوانات والنباتات في الغابة.', cat:'environment'},
+      {eng:'Desert Wind', ar:'رياح الصحراء', desc:'صوت الرياح في الصحراء.', cat:'environment'},
+      {eng:'Rainforest', ar:'غابة مطيرة', desc:'أصوات أمطار وحيوانات في الغابة المطيرة.', cat:'environment'},
+      {eng:'Mountain Breeze', ar:'نسيم الجبال', desc:'صوت الرياح في المناطق الجبلية.', cat:'environment'},
+      {eng:'Underwater', ar:'تحت الماء', desc:'أصوات تحت سطح الماء.', cat:'environment'},
+      {eng:'Countryside', ar:'الريف', desc:'أصوات الريف.', cat:'environment'},
+      {eng:'Farm Yard', ar:'ساحة المزرعة', desc:'أصوات المزرعة.', cat:'environment'},
+      {eng:'Livestock', ar:'ماشية', desc:'أصوات الماشية.', cat:'environment'},
+      {eng:'Horses', ar:'خيول', desc:'أصوات الخيول.', cat:'environment'},
+      {eng:'Cows', ar:'أبقار', desc:'أصوات الأبقار.', cat:'environment'},
+      {eng:'Pigs', ar:'خنازير', desc:'أصوات الخنازير.', cat:'environment'},
+      {eng:'Chickens', ar:'دجاج', desc:'أصوات الدجاج.', cat:'environment'},
+      {eng:'Rooster', ar:'ديك', desc:'صوت الديك.', cat:'environment'},
+      {eng:'Sheep', ar:'أغنام', desc:'أصوات الأغنام.', cat:'environment'},
+      {eng:'Goats', ar:'ماعز', desc:'أصوات الماعز.', cat:'environment'},
+
+      // Occasions (20 terms)
+      {eng:'Birthday Party', ar:'حفلة عيد ميلاد', desc:'أصوات احتفالية في عيد الميلاد.', cat:'occasions'},
+      {eng:'Wedding Bells', ar:'أجراس الزفاف', desc:'صوت أجراس الزفاف التقليدية.', cat:'occasions'},
+      {eng:'Fireworks', ar:'ألعاب نارية', desc:'صوت انفجار الألعاب النارية.', cat:'occasions'},
+      {eng:'Celebration', ar:'احتفال', desc:'أصوات احتفالية متنوعة.', cat:'occasions'},
+      {eng:'Applause', ar:'تصفيق', desc:'صوت تصفيق الجمهور.', cat:'occasions'},
+      {eng:'Cheers', ar:'تهانينا', desc:'صوت تهانينا أو تهليل.', cat:'occasions'},
+      {eng:'Toasting', ar:'نخب', desc:'صوت تلامس الأكواب في الاحتفالات.', cat:'occasions'},
+      {eng:'Confetti', ar:'قصاصات ورقية', desc:'صوت تناثر القصاصات الورقية.', cat:'occasions'},
+      {eng:'Party Horn', ar:'بوق الحفلة', desc:'صوت بوق احتفالي.', cat:'occasions'},
+      {eng:'Champagne', ar:'شمبانيا', desc:'صوت فتح زجاجة شمبانيا.', cat:'occasions'},
+      {eng:'Ceremony', ar:'مراسم', desc:'أصوات المراسم.', cat:'occasions'},
+      {eng:'Graduation', ar:'تخرج', desc:'أصوات حفل التخرج.', cat:'occasions'},
+      {eng:'Anniversary', ar:'ذكرى سنوية', desc:'أصوات الاحتفال بالذكرى.', cat:'occasions'},
+      {eng:'Engagement', ar:'خطوبة', desc:'أصوات احتفال الخطوبة.', cat:'occasions'},
+      {eng:'Bachelor Party', ar:'حفلة العزوبية', desc:'أصوات حفلة العزوبية.', cat:'occasions'},
+      {eng:'Bachelorette Party', ar:'حفلة العزوبية النسائية', desc:'أصوات حفلة العزوبية النسائية.', cat:'occasions'},
+      {eng:'Rehearsal Dinner', ar:'عشاء التمرين', desc:'أصوات عشاء التمرين.', cat:'occasions'},
+      {eng:'Bridal Shower', ar:'حفلة العروس', desc:'أصوات حفلة العروس.', cat:'occasions'},
+      {eng:'Baby Shower', ar:'حفلة المولود', desc:'أصوات حفلة المولود.', cat:'occasions'},
+      {eng:'Christening', ar:'洗礼', desc:'أصوات حفلة التعميد.', cat:'occasions'},
+
+      // Games (20 terms)
+      {eng:'Level Up', ar:'ترقية', desc:'صوت الترقية في الألعاب.', cat:'games'},
+      {eng:'Game Over', ar:'نهاية اللعبة', desc:'صوت نهاية اللعبة أو الخسارة.', cat:'games'},
+      {eng:'Coin Collect', ar:'جمع عملة', desc:'صوت جمع العملات في الألعاب.', cat:'games'},
+      {eng:'Jump', ar:'قفزة', desc:'صوت قفز الشخصية في اللعبة.', cat:'games'},
+      {eng:'Shoot', ar:'إطلاق نار', desc:'صوت إطلاق النار في الألعاب.', cat:'games'},
+      {eng:'Power Up', ar:'تعزيز القوة', desc:'صوت الحصول على تعزيزات.', cat:'games'},
+      {eng:'Boss Fight', ar:'قتال الزعيم', desc:'صوت قتال مع زعيم.', cat:'games'},
+      {eng:'Victory', ar:'فوز', desc:'صوت الفوز في اللعبة.', cat:'games'},
+      {eng:'Defeat', ar:'هزيمة', desc:'صوت الهزيمة.', cat:'games'},
+      {eng:'Start Screen', ar:'شاشة البداية', desc:'صوت شاشة البداية.', cat:'games'},
+      {eng:'Menu', ar:'قائمة', desc:'صوت القائمة.', cat:'games'},
+      {eng:'Pause', ar:'إيقاف مؤقت', desc:'صوت الإيقاف المؤقت.', cat:'games'},
+      {eng:'Resume', ar:'استئناف', desc:'صوت الاستئناف.', cat:'games'},
+      {eng:'Save', ar:'حفظ', desc:'صوت الحفظ.', cat:'games'},
+      {eng:'Load', ar:'تحميل', desc:'صوت التحميل.', cat:'games'},
+      {eng:'Checkpoint', ar:'نقطة التحقق', desc:'صوت نقطة التحقق.', cat:'games'},
+      {eng:'Continue', ar:'متابعة', desc:'صوت المتابعة.', cat:'games'},
+      {eng:'New Game', ar:'لعبة جديدة', desc:'صوت لعبة جديدة.', cat:'games'},
+      {eng:'Load Game', ar:'تحميل لعبة', desc:'صوت تحميل لعبة.', cat:'games'},
+      {eng:'Save Game', ar:'حفظ لعبة', desc:'صوت حفظ لعبة.', cat:'games'},
+
+      // Composition (20 terms)
+      {eng:'Rule of Thirds', ar:'قاعدة الثلث', desc:'تقنية لتقسيم الشاشة إلى أجزاء.', cat:'composition'},
+      {eng:'Leading Lines', ar:'خطوط التوجيه', desc:'_LINES_ التي توجه الانتباه.', cat:'composition'},
+      {eng:'Framing', ar:'التأطير', desc:'استخدام العناصر ل framing الصورة.', cat:'composition'},
+      {eng:'Depth of Field', ar:'عمق المجال', desc:'المسافة بين الأجزاء الحادة والضبابية.', cat:'composition'},
+      {eng:'Symmetry', ar:'التناظر', desc:'تحقيق التوازن البصري.', cat:'composition'},
+      {eng:'Balance', ar:'التوازن', desc:'توزيع العناصر بشكل متساوٍ.', cat:'composition'},
+      {eng:'Contrast', ar:'التباين', desc:'الفرق بين الألوان الداكنة والفاتحة.', cat:'composition'},
+      {eng:'Color Harmony', ar:'تناغم الألوان', desc:'مزيج متناسق من الألوان.', cat:'composition'},
+      {eng:'Visual Hierarchy', ar:'الهرم البصري', desc:'تنظيم العناصر حسب الأهمية.', cat:'composition'},
+      {eng:'Negative Space', ar:'المساحة السلبية', desc:'المساحة الفارغة في الصورة.', cat:'composition'},
+      {eng:'Golden Ratio', ar:'النسبة الذهبية', desc:'نسبة رياضية لتحديد المواقع.', cat:'composition'},
+      {eng:'Focal Point', ar:'نقطة التركيز', desc:'النقطة التي تجذب الانتباه.', cat:'composition'},
+      {eng:'Perspective', ar:'المنظور', desc:'طريقة رؤية الأبعاد.', cat:'composition'},
+      {eng:'Vanishing Point', ar:'نقطة التلاشي', desc:'نقطة اختفاء الخطوط.', cat:'composition'},
+      {eng:'Leading', ar:'المسافة بين الأسطر', desc:'المسافة بين الأسطر.', cat:'composition'},
+      {eng:'Tracking', ar:'المسافة بين الحروف', desc:'المسافة بين الحروف.', cat:'composition'},
+      {eng:'Kerning', ar:'المسافة بين الأحرف', desc:'المسافة بين الأحرف.', cat:'composition'},
+      {eng:'Alignment', ar:'المحاذاة', desc:'موضع العناصر.', cat:'composition'},
+      {eng:'Grid', ar:'الشبكة', desc:'نظام لتنظيم العناصر.', cat:'composition'},
+      {eng:'Proximity', ar:'القرب', desc:'العلاقة بين العناصر.', cat:'composition'},
+
+      // Camera (20 terms)
+      {eng:'Zoom', ar:'تكبير', desc:'تغيير البعد البصري للعدسة.', cat:'camera'},
+      {eng:'Pan', ar:'تحريك', desc:'تحريك الكاميرا أفقيًا.', cat:'camera'},
+      {eng:'Tilt', ar:'إمالة', desc:'تحريك الكاميرا رأسيًا.', cat:'camera'},
+      {eng:'Dolly', ar:'تحريك أمامي', desc:'تحريك الكاميرا للأمام أو للخلف.', cat:'camera'},
+      {eng:'Crane', ar:'رافعة', desc:'رفع أو خفض الكاميرا.', cat:'camera'},
+      {eng:'Steadicam', ar:'كاميرا مستقرة', desc:'نظام تثبيت الكاميرا.', cat:'camera'},
+      {eng:'Handheld', ar:'الكاميرا اليدوية', desc:'التصوير بدون معدات تثبيت.', cat:'camera'},
+      {eng:'Tripod', ar:'حامل ثلاثي', desc:'معدات تثبيت الكاميرا.', cat:'camera'},
+      {eng:'Focus', ar:'التركيز', desc:'وضوح الصورة.', cat:'camera'},
+      {eng:'Aperture', ar:'فتحة العدسة', desc:'التحكم في كمية الضوء الداخل.', cat:'camera'},
+      {eng:'Shutter Speed', ar:'سرعة الغالق', desc:'مدة فتح الغالق.', cat:'camera'},
+      {eng:'ISO', ar:'ISO', desc:'حساسية الكاميرا للضوء.', cat:'camera'},
+      {eng:'Exposure', ar:'التعريض', desc:'كمية الضوء في الصورة.', cat:'camera'},
+      {eng:'White Balance', ar:'توازن الأبيض', desc:'تصحيح لون الأبيض.', cat:'camera'},
+      {eng:'Focal Length', ar:'البعد البصري', desc:'المسافة بين العدسة والمستشعر.', cat:'camera'},
+      {eng:'Depth of Field', ar:'عمق المجال', desc:'المسافة بين الأجزاء الحادة والضبابية.', cat:'camera'},
+      {eng:'Shallow Focus', ar:'تركيز ضحل', desc:'تركيز على جزء صغير من الصورة.', cat:'camera'},
+      {eng:'Deep Focus', ar:'تركيز عميق', desc:'وضوح كل الصورة.', cat:'camera'},
+      {eng:'Wide Angle', ar:'زاوية واسعة', desc:'عدسة تلتقط مساحة واسعة.', cat:'camera'},
+      {eng:'Telephoto', ar:'عدسة تلسكوبية', desc:'عدسة لالتقاط أشياء بعيدة.', cat:'camera'},
+
+      // Lighting (20 terms)
+      {eng:'Key Light', ar:'الضوء الرئيسي', desc:'الضوء الأساسي في الإضاءة.', cat:'lighting'},
+      {eng:'Fill Light', ar:'ضوء التعبئة', desc:'ضوء يخفف الظلال.', cat:'lighting'},
+      {eng:'Back Light', ar:'الضوء الخلفي', desc:'ضوء يفصل بين الجسم والخلفية.', cat:'lighting'},
+      {eng:'Soft Light', ar:'ضوء ناعم', desc:'ضوء يقلل الظلال الحادة.', cat:'lighting'},
+      {eng:'Hard Light', ar:'ضوء قوي', desc:'ضوء يخلق ظلال حادة.', cat:'lighting'},
+      {eng:'Three Point Lighting', ar:'الإضاءة الثلاثية', desc:'نظام إضاءة مكون من 3 مصابيح.', cat:'lighting'},
+      {eng:'Practical Light', ar:'ضوء عملي', desc:'ضوء موجود في المشهد.', cat:'lighting'},
+      {eng:'Motivated Light', ar:'ضوء مبرر', desc:'ضوء يبدو طبيعيًا في السيناريو.', cat:'lighting'},
+      {eng:'High Key', ar:'إضاءة عالية', desc:'إضاءة ساطعة مع قليل من الظلال.', cat:'lighting'},
+      {eng:'Low Key', ar:'إضاءة منخفضة', desc:'إضاءة مظلمة مع ظلال كثيرة.', cat:'lighting'},
+      {eng:'Ambient Light', ar:'الضوء المحيط', desc:'الضوء الطبيعي في المكان.', cat:'lighting'},
+      {eng:'Available Light', ar:'الضوء المتوفر', desc:'الضوء الطبيعي المتاح.', cat:'lighting'},
+      {eng:'Artificial Light', ar:'الضوء الاصطناعي', desc:'الضوء الاصطناعي.', cat:'lighting'},
+      {eng:'Natural Light', ar:'الضوء الطبيعي', desc:'الضوء الطبيعي.', cat:'lighting'},
+      {eng:'Reflected Light', ar:'الضوء المنعكس', desc:'الضوء المنعكس عن سطح.', cat:'lighting'},
+      {eng:'Direct Light', ar:'الضوء المباشر', desc:'الضوء مباشرة من المصدر.', cat:'lighting'},
+      {eng:'Diffused Light', ar:'الضوء المتناثر', desc:'الضوء المتناثر.', cat:'lighting'},
+      {eng:'Specular Light', ar:'الضوء المعدني', desc:'الضوء الساطع على الأسطح.', cat:'lighting'},
+      {eng:'Diffuse Reflection', ar:'الانعكاس المتناثر', desc:'الانعكاس المتناثر.', cat:'lighting'},
+      {eng:'Specular Reflection', ar:'الانعكاس المعدني', desc:'الانعكاس الساطع.', cat:'lighting'},
+
+      // Post Production (20 terms)
+      {eng:'Audio Mixing', ar:'خلط الصوت', desc:'دمج وتعديل مستويات الصوت.', cat:'postproduction'},
+      {eng:'Visual Effects', ar:' effects البصرية', desc:'Effects تضاف بعد التصوير.', cat:'postproduction'},
+      {eng:'Rotoscoping', ar:'رسم تلقائي', desc:'تتبع الحركة يدويًا.', cat:'postproduction'},
+      {eng:'Match Moving', ar:'مطابقة الحركة', desc:'مطابقة الحركة الافتراضية مع الحقيقية.', cat:'postproduction'},
+      {eng:'Keying', ar:'المفتاح', desc:'إزالة خلفية لدمج العناصر.', cat:'postproduction'},
+      {eng:'Tracking', ar:'التتبع', desc:'تتبع حركة الكائنات.', cat:'postproduction'},
+      {eng:'Rendering', ar:'العرض', desc:'تحويل المشروع إلى ملف فيديو.', cat:'postproduction'},
+      {eng:'Export', ar:'تصدير', desc:'حفظ الفيديو النهائي بمواصفات جاهزة للنشر.', cat:'postproduction'},
+      {eng:'Import', ar:'استيراد', desc:'إدخال المقاطع إلى المشروع.', cat:'postproduction'},
+      {eng:'Timeline', ar:'الجدول الزمني', desc:'المساحة التي يتم فيها ترتيب المقاطع.', cat:'postproduction'},
+      {eng:'Sequence', ar:'تسلسل', desc:'تسلسل المقاطع في المشروع.', cat:'postproduction'},
+      {eng:'Bin', ar:'صندوق', desc:'مكان لتخزين المقاطع.', cat:'postproduction'},
+      {eng:'Media Management', ar:'إدارة الوسائط', desc:'إدارة ملفات الفيديو.', cat:'postproduction'},
+      {eng:'Proxy', ar:'وسيط', desc:'نسخة مصغرة من المقطع الأصلي.', cat:'postproduction'},
+      {eng:'Render Queue', ar:'طابور العرض', desc:'قائمة المهام للعرض.', cat:'postproduction'},
+      {eng:'Batch Render', ar:'عرض دفعة', desc:'عرض عدة مقاطع دفعة واحدة.', cat:'postproduction'},
+      {eng:'Multi-Track Editing', ar:'تعديل متعدد المسارات', desc:'تعديل على أكثر من مسار.', cat:'postproduction'},
+      {eng:'Nested Sequence', ar:'تسلسل متداخل', desc:'تسلسل داخل تسلسل آخر.', cat:'postproduction'},
+      {eng:'Pre-Roll', ar:'الدوران المسبق', desc:'الدوران قبل التسجيل.', cat:'postproduction'},
+      {eng:'Post-Roll', ar:'الدوران اللاحق', desc:'الدوران بعد التسجيل.', cat:'postproduction'},
+
+      // Storytelling (20 terms)
+      {eng:'Narrative', ar:'السرد', desc:'طريقة سرد القصة.', cat:'storytelling'},
+      {eng:'Plot', ar:'الحبكة', desc:'الحدث أو القصة.', cat:'storytelling'},
+      {eng:'Character Development', ar:'تطوير الشخصية', desc:'تطوير شخصية في القصة.', cat:'storytelling'},
+      {eng:'Theme', ar:'الموضوع', desc:'الرسالة أو الفكرة الأساسية.', cat:'storytelling'},
+      {eng:'Pacing', ar:'الإيقاع', desc:'سرعة تطور الأحداث.', cat:'storytelling'},
+      {eng:'Arc', ar:'القوس', desc:'تطور الشخصية أو الحدث.', cat:'storytelling'},
+      {eng:'Hook', ar:'الخطاف', desc:'عنصصر جذب الانتباه.', cat:'storytelling'},
+      {eng:'Climax', ar:'الذروة', desc:'النقطة الأكثر إثارة.', cat:'storytelling'},
+      {eng:'Resolution', ar:'الحل', desc:'نهاية القصة.', cat:'storytelling'},
+      {eng:'Flashback', ar:'تذكّر', desc:'حدث في الماضي.', cat:'storytelling'},
+      {eng:'Flashforward', ar:'تذكّر مستقبلي', desc:'حدث في المستقبل.', cat:'storytelling'},
+      {eng:'Foreshadowing', ar:'إيحاء مسبق', desc:'إيحاء بحدث قادم.', cat:'storytelling'},
+      {eng:'Subplot', ar:'الحبكة الفرعية', desc:'حبكة فرعية في القصة.', cat:'storytelling'},
+      {eng:'Antagonist', ar:'الخصم', desc:'الشخصية المعاكسة.', cat:'storytelling'},
+      {eng:'Protagonist', ar:'البطل', desc:'الشخصية الرئيسية.', cat:'storytelling'},
+      {eng:'Supporting Character', ar:'الشخصية الداعمة', desc:'شخصية تدعم البطل.', cat:'storytelling'},
+      {eng:'Narrator', ar:'الراوي', desc:'الشخص الذي يروي القصة.', cat:'storytelling'},
+      {eng:'Point of View', ar:'نقطة الرؤية', desc:'طريقة رؤية القصة.', cat:'storytelling'},
+      {eng:'First Person', ar:'الشخص الأول', desc:'الراوي هو البطل.', cat:'storytelling'},
+      {eng:'Third Person', ar:'الشخص الثالث', desc:'الراوي يروي من خارج القصة.', cat:'storytelling'}
+    ];
+
+    // App state
+    let terms = loadFromStorage('terms_all_v1', TERMS);
+    let state = loadFromStorage('quiz_state_v1', {answers:{}, startTime: Date.now()});
+    let testStartTime = state.startTime || Date.now();
+
+    // helpers
+    function loadFromStorage(key, fallback){ 
+      try{ 
+        const v = localStorage.getItem(key); 
+        if(!v) return JSON.parse(JSON.stringify(fallback)); 
+        const p = JSON.parse(v); 
+        if(Array.isArray(p) || typeof p === 'object') return p; 
+        return JSON.parse(JSON.stringify(fallback)); 
+      }catch(e){ 
+        console.warn('load err',e); 
+        return JSON.parse(JSON.stringify(fallback)); 
+      } 
+    }
+    function saveToStorage(key, value){ 
+      try{ 
+        localStorage.setItem(key, JSON.stringify(value)); 
+      }catch(e){ 
+        console.warn('save err', e); 
+      } 
+    }
+    function shuffle(a){ 
+      for(let i=a.length-1;i>0;i--){ 
+        const j=Math.floor(Math.random()*(i+1)); 
+        [a[i],a[j]]=[a[j],a[i]] 
+      } 
+      return a 
+    }
+
+    const qEl = document.getElementById('questions');
+    const prog = document.getElementById('progbar');
+    const searchInput = document.getElementById('search');
+    const searchResults = document.getElementById('search-results');
+
+    function buildAll(){
+      qEl.innerHTML = '';
+      if(!terms || terms.length===0){ 
+        qEl.innerHTML='<div style="padding:12px;color:var(--muted)">لا توجد أسئلة.</div>'; 
+        return; 
+      }
+      terms.forEach((t, idx)=>{
+        const card = document.createElement('div'); 
+        card.className='question'; 
+        card.dataset.cat=t.cat; 
+        card.dataset.eng=t.eng;
+        card.dataset.desc=t.desc;
+        
+        const title = document.createElement('div'); 
+        title.className='q-title'; 
+        title.textContent = `ما معنى كلمة "${t.eng}" في المونتاج؟`;
+        card.appendChild(title);
+
+        const opts = [t.ar];
+        const others = terms.map(x=>x.ar).filter(a=>a!==t.ar);
+        shuffle(others);
+        opts.push(...others.slice(0,3)); 
+        shuffle(opts);
+
+        const options = document.createElement('div'); 
+        options.className='options';
+        const name = 'q_'+encodeURIComponent(t.eng);
+        opts.forEach(opt=>{
+          const label = document.createElement('label'); 
+          label.className='opt';
+          const radio = document.createElement('input'); 
+          radio.type='radio'; 
+          radio.name=name; 
+          radio.value=opt;
+          if(state && state.answers && state.answers[t.eng] && state.answers[t.eng]===opt) radio.checked = true;
+          radio.addEventListener('change', ()=>{
+            state.answers[t.eng]=opt; 
+            saveToStorage('quiz_state_v1', state); 
+            updateProgress(); 
+          });
+          label.appendChild(radio);
+          const span = document.createElement('span'); 
+          span.textContent = opt; 
+          label.appendChild(span);
+          options.appendChild(label);
+        });
+        card.appendChild(options);
+
+        const meta = document.createElement('div'); 
+        meta.className='meta'; 
+        meta.innerHTML = `<div style="text-transform:uppercase;opacity:.9">${t.cat}</div><div style="opacity:.85">${t.ar}</div>`;
+        card.appendChild(meta);
+        qEl.appendChild(card);
+      });
+      updateProgress();
+    }
+
+    function updateProgress(){
+      const total = document.querySelectorAll('.question').length;
+      const answered = document.querySelectorAll('.question input[type=radio]:checked').length;
+      const pct = total? Math.round((answered/total)*100) : 0;
+      prog.style.width = pct + '%';
+      
+      // Update stats
+      document.getElementById('total-terms').textContent = TERMS.length;
+      document.getElementById('answered-questions').textContent = answered;
+      
+      // Calculate correct answers
+      let correct = 0;
+      document.querySelectorAll('.question').forEach(c => {
+        const eng = c.dataset.eng;
+        const correctVal = terms.find(t=>t.eng===eng)?.ar || '';
+        const chosen = c.querySelector('input[type=radio]:checked');
+        if(chosen && chosen.value === correctVal) correct++;
+      });
+      
+      document.getElementById('correct-answers').textContent = correct;
+      document.getElementById('accuracy').textContent = total ? Math.round((correct/total)*100) + '%' : '0%';
+      
+      document.getElementById('result').textContent = `إجبت على ${answered} من ${total} — ${pct}%`;
+    }
+
+    function checkAll(){
+      const cards = document.querySelectorAll('.question');
+      let correct=0, total=0;
+      
+      cards.forEach(c=>{
+        total++;
+        const eng = c.dataset.eng;
+        const correctVal = terms.find(t=>t.eng===eng)?.ar || '';
+        const chosen = c.querySelector('input[type=radio]:checked');
+        
+        // Reset styles
+        c.querySelectorAll('label.opt').forEach(l=>{ 
+          l.style.background='rgba(255,255,255,0.01)'; 
+          l.style.border='none'; 
+        });
+        
+        if(chosen && chosen.value===correctVal){ 
+          correct++; 
+          const lbl = chosen.closest('label'); 
+          lbl.style.background='rgba(87,242,135,0.06)'; 
+          lbl.style.border='1px solid rgba(87,242,135,0.12)'; 
+        }
+        else{ 
+          if(chosen){ 
+            const lbl = chosen.closest('label'); 
+            lbl.style.background='rgba(255,107,107,0.06)'; 
+            lbl.style.border='1px solid rgba(255,107,107,0.12)'; 
+          } 
+          // Highlight correct answer
+          c.querySelectorAll('label.opt').forEach(l=>{
+            if(l.textContent.trim()===correctVal){ 
+              l.style.background='rgba(87,242,135,0.06)'; 
+              l.style.border='1px solid rgba(87,242,135,0.12)'; 
+            } 
+          }); 
+        }
+      });
+      
+      document.getElementById('result').textContent = `درجتك: ${correct} من ${total}`;
+    }
+
+    function showResultsModal(){
+      const modal = document.getElementById('results-modal');
+      const cards = document.querySelectorAll('.question');
+      let correct=0, total=0, incorrect=0, unanswered=0;
+      let resultsHTML = '';
+      let categoryStats = {};
+      
+      // Initialize category stats
+      TERMS.forEach(term => {
+        if (!categoryStats[term.cat]) {
+          categoryStats[term.cat] = { total: 0, correct: 0, incorrect: 0, unanswered: 0 };
+        }
+        categoryStats[term.cat].total++;
+      });
+      
+      cards.forEach(c=>{
+        total++;
+        const eng = c.dataset.eng;
+        const cat = c.dataset.cat;
+        const correctVal = terms.find(t=>t.eng===eng)?.ar || '';
+        const chosen = c.querySelector('input[type=radio]:checked');
+        
+        if(chosen && chosen.value===correctVal){ 
+          correct++; 
+          categoryStats[cat].correct++;
+        }
+        else if(chosen){ 
+          incorrect++; 
+          categoryStats[cat].incorrect++;
+        }
+        else{ 
+          unanswered++; 
+          categoryStats[cat].unanswered++;
+        }
+        
+        // Add to results list
+        const resultItem = document.createElement('div');
+        resultItem.className = 'result-item';
+        if(chosen && chosen.value===correctVal) {
+          resultItem.classList.add('correct');
+          resultItem.innerHTML = `
+            <div><span class="badge success">✓ صحيح</span> ${eng}</div>
+            <div>إجابتك: ${chosen.value}</div>
+            <div class="explanation">أحسنت! هذه هي الإجابة الصحيحة.</div>
+          `;
+        }
+        else if(chosen){ 
+          resultItem.classList.add('incorrect');
+          resultItem.innerHTML = `
+            <div><span class="badge danger">✗ خطأ</span> ${eng}</div>
+            <div>إجابتك: ${chosen.value}</div>
+            <div>الإجابة الصحيحة: ${correctVal}</div>
+            <div class="explanation">السبب: ${getExplanation(eng, chosen.value, correctVal)}</div>
+          `;
+        }
+        else{ 
+          resultItem.classList.add('unanswered');
+          resultItem.innerHTML = `
+            <div><span class="badge warning">؟ لم تجب</span> ${eng}</div>
+            <div>الإجابة الصحيحة: ${correctVal}</div>
+            <div class="explanation">يجب الإجابة على جميع الأسئلة للحصول على درجة كاملة.</div>
+          `;
+        }
+        resultsHTML += resultItem.outerHTML;
+      });
+      
+      // Update final score
+      document.getElementById('final-score').textContent = `${correct} / ${total}`;
+      
+      // Update timer
+      const elapsed = Math.floor((Date.now() - testStartTime) / 1000);
+      const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
+      const seconds = (elapsed % 60).toString().padStart(2, '0');
+      document.getElementById('test-timer').textContent = `الوقت المستغرق: ${minutes}:${seconds}`;
+      
+      // Add category stats
+      let categoryHTML = '<h3>التقدم حسب الفئات</h3>';
+      for (const [cat, stats] of Object.entries(categoryStats)) {
+        const accuracy = stats.total ? Math.round(((stats.correct)/stats.total)*100) : 0;
+        categoryHTML += `
+          <div class="category-progress">
+            <div class="category-title">${cat}</div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width:${accuracy}%"></div>
+            </div>
+            <div class="category-stats">
+              <span>الصحيح: ${stats.correct}</span>
+              <span>الخطأ: ${stats.incorrect}</span>
+              <span>لم تجب: ${stats.unanswered}</span>
+              <span>الدقة: ${accuracy}%</span>
+            </div>
+          </div>
+        `;
+      }
+      
+      // Add achievements
+      const achievementSection = document.getElementById('achievement-section');
+      const achievementTitle = document.getElementById('achievement-title');
+      const achievementDesc = document.getElementById('achievement-desc');
+      const achievementStars = document.getElementById('achievement-stars');
+      
+      let stars = '';
+      let achievementText = '';
+      let achievementDescText = '';
+      
+      if (correct === total) {
+        achievementSection.style.display = 'block';
+        achievementTitle.textContent = '🏆 أداء ممتاز!';
+        achievementDescText = 'لقد أجبت على جميع الأسئلة بشكل صحيح!';
+        stars = '⭐⭐⭐⭐⭐';
+      } else if (correct >= total * 0.8) {
+        achievementSection.style.display = 'block';
+        achievementTitle.textContent = '🥇 أداء جيد جداً!';
+        achievementDescText = 'لقد أظهرت فهماً ممتازاً للمصطلحات!';
+        stars = '⭐⭐⭐⭐';
+      } else if (correct >= total * 0.6) {
+        achievementSection.style.display = 'block';
+        achievementTitle.textContent = '🥈 أداء جيد!';
+        achievementDescText = '继续保持! أنت على الطريق الصحيح.';
+        stars = '⭐⭐⭐';
+      } else {
+        achievementSection.style.display = 'none';
+      }
+      
+      achievementDesc.textContent = achievementDescText;
+      achievementStars.textContent = stars;
+      
+      document.getElementById('results-list').innerHTML = categoryHTML + resultsHTML;
+      modal.style.display = 'flex';
+    }
+
+    function getExplanation(question, chosen, correct) {
+      const explanations = {
+        'Clip': 'الـ Clip هو جزء من الفيديو يمكن قصه أو تعديله، وليس مجرد مقطع عادي.',
+        'Reverse': 'عكس الفيديو يعني تشغيل المقطع بشكل عكسي، وليس تسريعه.',
+        'Speed': 'السرعة تشير إلى زيادة أو تقليل سرعة المقطع، وليس الحركة البطيئة.',
+        'Slow Motion': 'الحركة البطيئة تعني إبطاء الفيديو لتوضيح التفاصيل، وليس تسريعه.',
+        'Fast Motion': 'الحركة السريعة تعني تسريع الفيديو، وليس إبطاءه.',
+        'Transition': 'الانتقال هو تأثير يربط بين مقطعين بسلاسة، وليس مجرد قص.',
+        'Fade In': 'الظهور التدريجي يعني ظهور المقطع تدريجيًا من الأسود، وليس الاختفاء.',
+        'Fade Out': 'الاختفاء التدريجي يعني اختفاء المقطع تدريجيًا إلى الأسود، وليس الظهور.',
+        'Split': 'التقسيم يعني فصل المقطع إلى جزئين، وليس حذفه.',
+        'Delete': 'الحذف يعني إزالة المقطع من المشروع، وليس نسخه.',
+        'Copy': 'النسخ يعني عمل نسخة من المقطع، وليس حذفه.',
+        'Text': 'النص يعني إضافة نصوص على الفيديو، وليس ملصقات.',
+        'Sticker': 'الملصق يعني إضافة ملصقات متحركة أو ثابتة، وليس نصوص.',
+        'Filter': 'الفلتر يعني تعديل ألوان الفيديو، وليس مؤثرات بصرية.',
+        'Effect': 'التأثير يعني إضافة مؤثرات بصرية، وليس فلاتر.',
+        'Overlay': 'التراكب يعني وضع مقطع أو صورة فوق الفيديو الأساسي، وليس إزالة الخلفية.',
+        'Mask': 'الماسك يعني إظهار جزء معين من المقطع وإخفاء الباقي، وليس تقسيم.',
+        'Keyframe': 'الإطار الرئيسي يعني تحديد نقاط بداية ونهاية للحركة، وليس مجرد إطارات.',
+        'Animation': 'الأنيميشن يعني تحريك النصوص أو العناصر داخل الفيديو، وليس مجرد نصوص.',
+        'AI Cut': 'القص بالذكاء الاصطناعي يعني قص تلقائي للمقاطع، وليس إزالة الخلفية.'
+      };
+      
+      if (chosen === correct) return 'إجابة صحيحة!';
+      return explanations[question] || 'إجابة خاطئة. يرجى مراجعة المعنى الصحيح.';
+    }
+
+    function exportCSV(){ 
+      const rows=[['English','الإجابة المختارة','الإجابة الصحيحة','صحيح؟']]; 
+      document.querySelectorAll('.question').forEach(c=>{
+        const eng=c.dataset.eng; 
+        const correctVal = terms.find(t=>t.eng===eng)?.ar || ''; 
+        const chosen = c.querySelector('input[type=radio]:checked'); 
+        const chosenVal = chosen? chosen.value : ''; 
+        const ok = chosenVal===correctVal? 'نعم':'لا'; 
+        rows.push([eng,chosenVal,correctVal,ok]); 
+      }); 
+      const csv = rows.map(r=>r.map(cell=>`"${String(cell).replace(/"/g,'""')}"`).join(',')).join('\n'); 
+      const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'}); 
+      const url=URL.createObjectURL(blob); 
+      const a=document.createElement('a'); 
+      a.href=url; 
+      a.download='quiz_results.csv'; 
+      document.body.appendChild(a); 
+      a.click(); 
+      a.remove(); 
+      URL.revokeObjectURL(url); 
+      showNotification('تم تصدير النتائج!');
+    }
+
+    // Search functionality
+    function showSearchResults(terms) {
+      searchResults.innerHTML = '';
+      if (terms.length === 0) {
+        searchResults.style.display = 'none';
+        return;
+      }
+      
+      terms.forEach(term => {
+        const item = document.createElement('div');
+        item.className = 'search-result-item';
+        item.innerHTML = `<strong>${term.eng}</strong> → ${term.ar} (${term.cat})`;
+        item.onclick = () => {
+          searchInput.value = term.eng;
+          searchResults.style.display = 'none';
+          // Filter to show only the selected term
+          document.querySelectorAll('.question').forEach(c => {
+            if (c.dataset.eng === term.eng) {
+              c.style.display = '';
+            } else {
+              c.style.display = 'none';
+            }
+          });
+          // Update progress
+          updateProgress();
+        };
+        searchResults.appendChild(item);
+      });
+      
+      searchResults.style.display = 'block';
+    }
+
+    // Hide search results when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.search-container')) {
+        searchResults.style.display = 'none';
+      }
+    });
+
+    document.querySelectorAll('.chip').forEach(btn=>{
+      btn.addEventListener('click', (e)=>{
+        const f = e.currentTarget.dataset.filter; 
+        document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+        e.currentTarget.classList.add('active');
+        if(f==='all'){ 
+          document.querySelectorAll('.question').forEach(c=>c.style.display=''); 
+        } else { 
+          document.querySelectorAll('.question').forEach(c=> 
+            c.dataset.cat===f ? c.style.display='' : c.style.display='none'
+          ); 
+        } 
+        updateProgress(); 
+      });
+    });
+
+    // Show notification
+    function showNotification(message) {
+      const notification = document.getElementById('notification');
+      notification.textContent = message;
+      notification.style.display = 'block';
+      setTimeout(() => {
+        notification.style.display = 'none';
+      }, 2000);
+    }
+
+    // Show detailed stats modal
+    function showStatsModal() {
+      const modal = document.getElementById('stats-modal');
+      modal.style.display = 'flex';
+      
+      // Calculate detailed stats by category
+      let stats = {};
+      TERMS.forEach(term => {
+        if (!stats[term.cat]) {
+          stats[term.cat] = { total: 0, answered: 0, correct: 0 };
+        }
+        stats[term.cat].total++;
+      });
+      
+      document.querySelectorAll('.question').forEach(c => {
+        const eng = c.dataset.eng;
+        const cat = c.dataset.cat;
+        const correctVal = terms.find(t=>t.eng===eng)?.ar || '';
+        const chosen = c.querySelector('input[type=radio]:checked');
+        
+        if (stats[cat]) {
+          stats[cat].answered++;
+          if(chosen && chosen.value===correctVal) {
+            stats[cat].correct++;
+          }
+        }
+      });
+      
+      let statsHTML = '<div style="max-height:400px;overflow-y:auto">';
+      for (const [cat, data] of Object.entries(stats)) {
+        const accuracy = data.answered ? Math.round((data.correct/data.answered)*100) : 0;
+        statsHTML += `
+          <div style="margin-bottom:10px;padding:10px;background:var(--glass);border-radius:8px">
+            <div style="display:flex;justify-content:space-between;font-weight:600">${cat}</div>
+            <div style="display:flex;justify-content:space-between;font-size:13px">
+              <span>الإجمالي: ${data.total}</span>
+              <span>الإجابات: ${data.answered}/${data.total}</span>
+              <span>الدقة: ${accuracy}%</span>
+            </div>
+          </div>
+        `;
+      }
+      statsHTML += '</div>';
+      
+      document.getElementById('detailed-stats').innerHTML = statsHTML;
+    }
+
+    // Search results modal
+    function showSearchResultsModal(searchTerms) {
+      const modal = document.getElementById('search-modal');
+      const resultsContainer = document.getElementById('search-results-modal');
+      
+      resultsContainer.innerHTML = '';
+      
+      if (searchTerms.length === 0) {
+        resultsContainer.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted)">لا توجد نتائج</div>';
+        modal.style.display = 'flex';
+        return;
+      }
+      
+      searchTerms.forEach(term => {
+        const item = document.createElement('div');
+        item.className = 'search-result-modal';
+        item.innerHTML = `
+          <div><strong>${term.eng}</strong></div>
+          <div>${term.ar}</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:5px;">${term.cat} - ${term.desc}</div>
+        `;
+        item.onclick = () => {
+          searchInput.value = term.eng;
+          modal.style.display = 'none';
+          // Filter to show only the selected term
+          document.querySelectorAll('.question').forEach(c => {
+            if (c.dataset.eng === term.eng) {
+              c.style.display = '';
+            } else {
+              c.style.display = 'none';
+            }
+          });
+          // Update progress
+          updateProgress();
+        };
+        resultsContainer.appendChild(item);
+      });
+      
+      modal.style.display = 'flex';
+    }
+
+    // actions
+    document.getElementById('btn-shuffle').addEventListener('click', ()=>{
+      shuffle(terms); 
+      saveToStorage('terms_all_v1', terms); 
+      buildAll(); 
+      window.scrollTo({top:0,behavior:'smooth'}); 
+      showNotification('تم إعادة ترتيب الأسئلة!');
+    });
+    document.getElementById('btn-check').addEventListener('click', ()=>{
+      checkAll(); 
+    });
+    document.getElementById('btn-results').addEventListener('click', ()=>{
+      showResultsModal();
+    });
+    document.getElementById('btn-export').addEventListener('click', ()=>{
+      exportCSV(); 
+    });
+    document.getElementById('btn-reset').addEventListener('click', ()=>{
+      if(confirm('هل تريد إعادة ضبط التقدّم؟ سيتم مسح الإجابات المحفوظة محليًا.')){
+        localStorage.removeItem('quiz_state_v1'); 
+        localStorage.removeItem('terms_all_v1'); 
+        state = {answers:{}, startTime: Date.now()}; 
+        testStartTime = Date.now();
+        terms = JSON.parse(JSON.stringify(TERMS)); 
+        buildAll(); 
+        showNotification('تمت إعادة التعيين!');
+      } 
+    });
+    document.getElementById('btn-stats').addEventListener('click', ()=>{
+      showStatsModal();
+    });
+
+    document.getElementById('btn-home').addEventListener('click', ()=>{
+      window.scrollTo({top:0,behavior:'smooth'}); 
+    });
+    document.getElementById('go-top').addEventListener('click', ()=>{
+      window.scrollTo({top:0,behavior:'smooth'}); 
+    });
+    
+    // Close modals
+    document.getElementById('close-stats').addEventListener('click', ()=>{
+      document.getElementById('stats-modal').style.display = 'none';
+    });
+    document.getElementById('close-results').addEventListener('click', ()=>{
+      document.getElementById('results-modal').style.display = 'none';
+    });
+    document.getElementById('close-search-modal').addEventListener('click', ()=>{
+      document.getElementById('search-modal').style.display = 'none';
+    });
+    
+    // Close modals when clicking outside
+    document.getElementById('stats-modal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('stats-modal')) {
+        document.getElementById('stats-modal').style.display = 'none';
+      }
+    });
+    document.getElementById('results-modal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('results-modal')) {
+        document.getElementById('results-modal').style.display = 'none';
+      }
+    });
+    document.getElementById('search-modal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('search-modal')) {
+        document.getElementById('search-modal').style.display = 'none';
+      }
+    });
+
+    // search & filter
+    searchInput.addEventListener('input', (e)=>{
+      const q = e.target.value.trim().toLowerCase(); 
+      
+      // Show search results if there's a query
+      if (q.length > 0) {
+        const filteredTerms = TERMS.filter(t => 
+          t.eng.toLowerCase().includes(q) || 
+          t.ar.toLowerCase().includes(q) || 
+          t.desc.toLowerCase().includes(q)
+        );
+        showSearchResults(filteredTerms);
+      } else {
+        searchResults.style.display = 'none';
+      }
+      
+      // Update question display
+      document.querySelectorAll('.question').forEach(c=>{
+        const eng = c.dataset.eng.toLowerCase(); 
+        const ar = c.dataset.eng ? terms.find(t=>t.eng===c.dataset.eng)?.ar.toLowerCase() : '';
+        const desc = c.dataset.desc ? terms.find(t=>t.eng===c.dataset.eng)?.desc.toLowerCase() : '';
+        if(!q){ 
+          c.style.display = ''; 
+        } else { 
+          if(eng.includes(q) || ar.includes(q) || desc.includes(q)) 
+            c.style.display=''; 
+          else 
+            c.style.display='none'; 
+        }
+      }); 
+      updateProgress(); 
+    });
+
+    // Search button click
+    document.getElementById('search-button').addEventListener('click', ()=>{
+      const q = searchInput.value.trim().toLowerCase();
+      if (q.length > 0) {
+        const filteredTerms = TERMS.filter(t => 
+          t.eng.toLowerCase().includes(q) || 
+          t.ar.toLowerCase().includes(q) || 
+          t.desc.toLowerCase().includes(q)
+        );
+        showSearchResultsModal(filteredTerms);
+      }
+    });
+
+    // init
+    buildAll(); 
+    updateProgress();
+    
+    // autosave answers periodically
+    setInterval(()=>{
+      saveToStorage('quiz_state_v1', state); 
+    },5000);
+  </script>
+</body>
+</html>
